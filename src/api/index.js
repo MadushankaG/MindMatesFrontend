@@ -8,6 +8,8 @@ const api = axios.create({
     baseURL: URL,
 }); // Create an axios instance
 
+console.log("Success:" + URL);
+
 api.interceptors.request.use((response) => {
     const token = localStorage.getItem("token");
     if (token) {
