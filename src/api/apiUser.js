@@ -18,7 +18,7 @@ export const userLogin = async (username, password) => {
     // If *this* endpoint (/api/users/login) *also* returns tokens, this code is fine.
     // If not, you might need to remove or adjust this based on the actual response.
     if (response.data && response.data.id && response.data.token) { // Example: Check if token exists
-        console.log("Login successful, storing token.");
+        console.log("Login successful, storing token." , response.data.token);
         localStorage.setItem("token", response.data.token);
         if (response.data.refreshToken) {
             // Consider security implications of storing refresh tokens in cookies

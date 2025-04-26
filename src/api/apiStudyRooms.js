@@ -57,6 +57,9 @@ export const uploadRoomImageApi = async (formData) => {
                 'Content-Type': 'multipart/form-data', // Important for file uploads
             },
         });
+
+        console.log(response.data);
+
         return response;
     } catch (error) {
         console.error("Error uploading room image:", error.response?.data || error.message);

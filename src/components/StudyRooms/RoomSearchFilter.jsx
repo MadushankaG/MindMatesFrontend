@@ -51,7 +51,7 @@ const RoomSearchFilter = ({ onRoomCreated }) => {
         console.log('[handleModalCreate] Received formValues:', formValues);
         console.log('[handleModalCreate] Received selectedFile:', selectedFile);
         setIsCreating(true);
-        let imageUrl = null;
+        let imageUrl = null; // Initialize imageUrl
 
         // 1. Handle Image Upload
         if (selectedFile) {
@@ -71,7 +71,7 @@ const RoomSearchFilter = ({ onRoomCreated }) => {
                 console.log("[handleModalCreate] uploadRoomImageApi call finished.");
 
                 if (uploadResponse && uploadResponse.data && uploadResponse.data.imageUrl) {
-                    imageUrl = uploadResponse.data.imageUrl;
+                    imageUrl = uploadResponse.data.imageUrl; // Assign the URL
                     console.log("[handleModalCreate] Image uploaded successfully, URL:", imageUrl);
                 } else {
                     console.error("[handleModalCreate] Image URL not found in upload response:", uploadResponse);
@@ -87,7 +87,7 @@ const RoomSearchFilter = ({ onRoomCreated }) => {
             console.log('[handleModalCreate] selectedFile is FALSY. Skipping upload.');
         }
 
-        // 2. Prepare Room Data
+        // --- 2. Prepare Room Data ---
         console.log('[handleModalCreate] Preparing room data...');
         const creatorId = getCurrentUserId();
         if (!creatorId) {
@@ -95,25 +95,43 @@ const RoomSearchFilter = ({ onRoomCreated }) => {
             setIsCreating(false);
             return;
         }
+
+        // --- Log imageUrl right before creating roomData ---
+        console.log(`[handleModalCreate] Value of imageUrl before creating roomData: "${imageUrl}" (Type: ${typeof imageUrl})`);
+        // --- End Log ---
+
+        // Create the base roomData object
         const roomData = {
             ...formValues,
             creatorid: creatorId,
-            ...(imageUrl && { imageUrl: imageUrl }),
+            // ispublic: formValues.ispublic, // Already included in formValues if handled correctly by modal
         };
 
-        // 3. Create the Room
+        // Explicitly add imageUrl if it's a non-empty string
+        if (imageUrl && typeof imageUrl === 'string' && imageUrl.trim() !== '') {
+            roomData.imageUrl = imageUrl;
+            console.log('[handleModalCreate] Added imageUrl to roomData.');
+        } else {
+            console.log('[handleModalCreate] imageUrl was null or empty, not adding to roomData.');
+        }
+
+
+        // --- Log the final roomData object ---
+        console.log("[handleModalCreate] Final roomData object being sent:", roomData);
+        // --- End Log ---
+
+
+        // --- 3. Create the Room ---
         try {
-            console.log("[handleModalCreate] Attempting to call createStudyRoom with data:", roomData);
-            const response = await createStudyRoom(roomData);
+            console.log("[handleModalCreate] Attempting to call createStudyRoom...");
+            const response = await createStudyRoom(roomData); // Send the final roomData
             console.log("[handleModalCreate] Room created successfully:", response.data);
             showNotification('success', 'Room Created', `Room "${response.data.name}" created successfully!`);
-            setIsModalOpen(false); // Close modal on success
+            setIsModalOpen(false);
 
-            // --- Call the refresh function passed from parent ---
             if (onRoomCreated && typeof onRoomCreated === 'function') {
                 onRoomCreated();
             }
-            // --- End refresh call ---
 
         } catch (error) {
             console.error('[handleModalCreate] Failed to create room:', error);
