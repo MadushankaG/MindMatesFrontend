@@ -1,18 +1,24 @@
 // src/layouts/DashboardLayout.jsx
-import React from 'react';
-import { Outlet } from 'react-router-dom'; // Import Outlet
-import Sidebar from '../components/Sidebar/Sidebar'; // Adjust path if necessary
+import React, { useEffect } from 'react'; // Added useEffect
+import { Outlet } from 'react-router-dom';
+import Sidebar from '../components/Sidebar/Sidebar';
 
 const DashboardLayout = () => {
-  return (
-    <div className="flex h-screen bg-slate-800"> {/* Base background for the whole screen */}
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto"> {/* Main content area */}
-        {/* Child routes will be rendered here */}
-        <Outlet />
-      </main>
-    </div>
-  );
+    // Log when the layout mounts
+    useEffect(() => {
+        console.log("[DashboardLayout] Component Mounted");
+    }, []);
+
+    return (
+        <div className="flex h-screen bg-slate-800">
+            <Sidebar />
+            <main className="flex-1 overflow-y-auto">
+                {/* Log before rendering Outlet */}
+                {console.log("[DashboardLayout] Rendering Outlet...")}
+                <Outlet /> {/* Child routes (like Dashboard page) render here */}
+            </main>
+        </div>
+    );
 };
 
 export default DashboardLayout;

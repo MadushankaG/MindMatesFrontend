@@ -20,6 +20,23 @@ export const getPublicStudyRooms = async () => {
     }
 };
 
+export const getStudyRoomDetails = async (roomId) => {
+    // Assume the endpoint uses the roomid provided in the path
+    const endpoint = `/api/study-rooms/${roomId}`;
+    if (!roomId) {
+        console.error("getStudyRoomDetails: roomId is required.");
+        throw new Error("Room ID is required."); // Or return a specific error response
+    }
+    try {
+        console.log(`Fetching details for room: ${roomId}`);
+        const response = await api.get(endpoint);
+        return response; // Expect response.data to contain the StudyRoom object
+    } catch (error) {
+        console.error(`Error fetching details for room ${roomId}:`, error.response || error.message);
+        throw error; // Re-throw for the component to handle
+    }
+};
+
 /**
  * Creates a new study room.
  * Corresponds to POST /api/study-rooms/create

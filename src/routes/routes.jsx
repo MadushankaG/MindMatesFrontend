@@ -1,84 +1,93 @@
 // src/routes/routes.jsx
 
 import React from 'react';
-import { Navigate } from 'react-router-dom'; // Used for redirects
+import { Navigate } from 'react-router-dom';
 
 // --- Layouts ---
-import DashboardLayout from '../layouts/DashboardLayout'; // Your existing layout
+import DashboardLayout from '../layouts/DashboardLayout'; // Import the layout
 
 // --- Pages ---
-import Login from '../pages/Login/Login'; // Login page
-import Register from '../pages/Register/Register'; // Register page (public)
+import Login from '../pages/Login/Login';
+import Register from '../pages/Register/Register';
 import Dashboard from '../pages/Dashboard';
 import StudyRooms from '../pages/StudyRooms';
 import Achievements from '../pages/Achievements';
-import Analytics from '../pages/Analytics'; // Assuming you have this page
-// import Settings from '../pages/Settings'; // Assuming you have this page
+// Import other pages as needed (Analytics, Settings)
 
-// --- Import the Protected Route Component ---
-import ProtectedRoute from './ProtectedRoute'; // <-- Import the component we created
+// --- Protected Route Component ---
+import ProtectedRoute from './ProtectedRoute';
+import StudyRoomDetail from "../pages/StudyRoomDetail.jsx"; // Import the protection component
 
 export const routesArray = [
     // --- Authentication Routes (Publicly Accessible) ---
     {
-        path: "/register", // Register remains public
+        path: "/register",
         element: <Register />,
     },
     {
-        path: "/login", // Login remains public
+        path: "/login",
         element: <Login />,
     },
 
     // --- Protected Application Routes (Require Login) ---
     {
-        // Use ProtectedRoute as the element for the parent route.
-        // It will check for authentication before rendering DashboardLayout and its children.
+        // Use ProtectedRoute as the parent element for routes requiring authentication.
+        // It will check for a token before rendering its children.
         element: <ProtectedRoute />,
         children: [
             {
-                // All routes nested under DashboardLayout are now protected
+                // Use DashboardLayout for the structure of authenticated pages.
+                // This is now nested *inside* ProtectedRoute.
                 element: <DashboardLayout />,
+                // Define the actual protected pages as children of DashboardLayout.
                 children: [
                     {
-                        // Make Dashboard the default page *within* the protected area
-                        // This means if someone navigates to the base path of the protected layout,
-                        // they land on the dashboard.
-                        index: true, // Use index route for the default child
+                        path: "/dashboard",
                         element: <Dashboard />,
-                        // Alternatively, you could keep using path: "/dashboard"
-                        // path: "/dashboard", element: <Dashboard />,
                     },
                     {
                         path: "/study-rooms",
                         element: <StudyRooms />,
                     },
                     {
+                        path: "/study-rooms/:roomId",
+                        element: <StudyRoomDetail />,
+                    },
+                    {
                         path: "/achievements",
                         element: <Achievements />,
                     },
-                    {
-                        path: "/analytics", // Example protected route
-                        element: <Analytics />,
-                    },
-                    // { path: "/settings", element: <Settings /> }, // Example protected route
-                    // Add other protected routes that use DashboardLayout here
+                    // Add routes for Analytics, Settings etc. here inside this children array
+                    // { path: "/analytics", element: <Analytics /> },
+                    // { path: "/settings", element: <Settings /> },
+
+                    // Optional: Redirect from the root within the protected layout if needed.
+                    // If someone manually navigates to just '/' after logging in,
+                    // this could redirect them to '/dashboard'.
+                    // However, the top-level redirect to /login usually handles the initial entry.
+                    // {
+                    //     path: "/", // Handles requests to the root *within* the protected section
+                    //     element: <Navigate to="/dashboard" replace />,
+                    // }
                 ]
             }
+            // If you had other top-level protected routes that *don't* use DashboardLayout,
+            // they would go here as siblings of the DashboardLayout element object.
         ]
     },
+    // --- End Protected Application Routes ---
+
 
     // --- Redirects and Catch-alls ---
     {
-        // Redirect the root path ('/') to the login page by default
+        // Default route redirects to LOGIN page if no other route matches
+        // and the user isn't hitting a protected route yet.
         path: "/",
-        element: <Navigate to="/login" replace />, // <-- CHANGED: Default route is now /login
+        element: <Navigate to="/login" replace />,
     },
-    {
-        // Catch-all route: If no other route matches, redirect unauthenticated
-        // users to login. Authenticated users hitting an invalid path within
-        // the protected area will depend on how DashboardLayout handles unknown children.
-        // You might want a specific 404 component later.
-        path: "*",
-        element: <Navigate to="/login" replace />, // Redirects any unmatched path to login
-    }
+    // {
+    //     // Example: A catch-all 404 route (implement NotFoundPage component)
+    //     path: "*",
+    //     element: <NotFoundPage />,
+    // }
 ];
