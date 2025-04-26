@@ -30,11 +30,23 @@ export const getPublicStudyRooms = async () => {
  */
 export const createStudyRoom = async (roomData) => {
     const endpoint = '/api/study-rooms/create';
-    // Example implementation (needs actual data and error handling)
-    // const response = await api.post(endpoint, roomData);
-    // return response;
-    console.warn("createStudyRoom function not fully implemented yet.");
-    return Promise.reject("Not implemented"); // Placeholder
+    console.log("Sending data to create room:", roomData); // Log data being sent
+
+    // --- Security Warning ---
+    // The 'creatorid' included in roomData should ideally be verified
+    // on the backend against the authenticated user making the request.
+    // Passing it directly from the client can be insecure if not validated server-side.
+    // --- End Security Warning ---
+
+    try {
+        // Make the POST request with roomData in the request body
+        const response = await api.post(endpoint, roomData);
+        return response;
+    } catch (error) {
+        console.error("Error creating study room:", error.response?.data || error.message);
+        // Re-throw the error for the component to handle
+        throw error;
+    }
 };
 
 /**
