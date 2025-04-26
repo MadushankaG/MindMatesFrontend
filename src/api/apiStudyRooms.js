@@ -49,6 +49,22 @@ export const createStudyRoom = async (roomData) => {
     }
 };
 
+export const uploadRoomImageApi = async (formData) => {
+    const endpoint = '/api/files/upload/room-image';
+    try {
+        const response = await api.post(endpoint, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data', // Important for file uploads
+            },
+        });
+        return response;
+    } catch (error) {
+        console.error("Error uploading room image:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+
 /**
  * Joins a study room.
  * Corresponds to POST /api/study-rooms/join-room

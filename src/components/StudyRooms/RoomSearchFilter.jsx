@@ -1,93 +1,127 @@
 // src/components/StudyRooms/RoomSearchFilter.jsx
 import React, { useState } from 'react';
 import { FiSearch } from 'react-icons/fi';
-// Import the new modal component
-import CreateRoomModal from './CreateRoomModal.jsx';
-// Import the API function (assuming it's implemented in apiStudyRooms.js)
-import { createStudyRoom } from '../../api/apiStudyRooms'; // Adjust path if needed
+import CreateRoomModal from './CreateRoomModal';
+import { createStudyRoom, uploadRoomImageApi } from '../../api/apiStudyRooms';
 
 // --- Placeholder for User ID ---
-// TODO: Replace this with a secure way to get the logged-in user's ID
-// (e.g., from auth context, decoded token, global state)
 const getCurrentUserId = () => {
     console.warn("Using placeholder user ID 'user123'. Replace with actual user ID from auth context.");
-    return "user123"; // Placeholder
+    return "user123";
 };
 // --- End Placeholder ---
 
 // --- Placeholder for Notification ---
-// TODO: Replace with your actual notification system
 const showNotification = (type, title, description) => {
     console.log(`Notification (${type}): ${title} - ${description}`);
     alert(`${title}: ${description}`);
 };
 // --- End Placeholder ---
 
-// Example categories (can be shared or fetched)
+// Example categories
 const categories = [
     'Physics', 'History and Evolution', 'Software Engineering', 'Biology',
     'Databases and Data', 'Geography', 'Miscellaneous', 'Language Studies', 'Other'
 ];
 
-const RoomSearchFilter = () => {
-    // State for controlling the Create Room Modal visibility
+// Add onRoomCreated to props
+const RoomSearchFilter = ({ onRoomCreated }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    // State for tracking loading state during room creation
     const [isCreating, setIsCreating] = useState(false);
 
     // --- Handler Functions ---
     const handleJoinWithIdClick = () => {
         console.log('Join with ID button clicked');
-        // TODO: Implement Join Room functionality (likely another modal)
         showNotification('info', 'Not Implemented', 'Join with ID functionality is not yet implemented.');
     };
 
-    // Show the Create Room modal
     const handleCreateNewClick = () => {
         setIsModalOpen(true);
     };
 
-    // Handle modal cancellation/closing
     const handleModalCancel = () => {
-        if (!isCreating) { // Prevent closing while submitting
+        if (!isCreating) {
             setIsModalOpen(false);
         }
     };
 
     // Handle modal form submission (Create Room)
-    const handleModalCreate = async (values) => {
-        console.log('Received values from form: ', values);
-        setIsCreating(true); // Set loading state
+    const handleModalCreate = async (formValues, selectedFile) => {
+        console.log('[handleModalCreate] Triggered.');
+        console.log('[handleModalCreate] Received formValues:', formValues);
+        console.log('[handleModalCreate] Received selectedFile:', selectedFile);
+        setIsCreating(true);
+        let imageUrl = null;
 
-        // --- Get Creator ID (Placeholder) ---
+        // 1. Handle Image Upload
+        if (selectedFile) {
+            console.log('[handleModalCreate] selectedFile is TRUTHY. Proceeding with upload.');
+            try {
+                const formData = new FormData();
+                if (selectedFile instanceof File) {
+                    formData.append('file', selectedFile);
+                    console.log('[handleModalCreate] Appended file to FormData:', formData.get('file'));
+                } else {
+                    console.error('[handleModalCreate] selectedFile is not a File object:', selectedFile);
+                    throw new Error("Invalid file selected.");
+                }
+
+                console.log("[handleModalCreate] Attempting to call uploadRoomImageApi...");
+                const uploadResponse = await uploadRoomImageApi(formData);
+                console.log("[handleModalCreate] uploadRoomImageApi call finished.");
+
+                if (uploadResponse && uploadResponse.data && uploadResponse.data.imageUrl) {
+                    imageUrl = uploadResponse.data.imageUrl;
+                    console.log("[handleModalCreate] Image uploaded successfully, URL:", imageUrl);
+                } else {
+                    console.error("[handleModalCreate] Image URL not found in upload response:", uploadResponse);
+                    throw new Error("Image URL not found in upload response.");
+                }
+            } catch (uploadError) {
+                console.error('[handleModalCreate] Image upload failed:', uploadError);
+                showNotification('error', 'Upload Failed', `Could not upload room image: ${uploadError.message || 'Unknown error'}`);
+                setIsCreating(false);
+                return;
+            }
+        } else {
+            console.log('[handleModalCreate] selectedFile is FALSY. Skipping upload.');
+        }
+
+        // 2. Prepare Room Data
+        console.log('[handleModalCreate] Preparing room data...');
         const creatorId = getCurrentUserId();
         if (!creatorId) {
             showNotification('error', 'Error', 'Could not identify current user. Please log in again.');
             setIsCreating(false);
             return;
         }
-        // --- End Placeholder ---
-
-        // Prepare data for the API call, adding the creatorId
         const roomData = {
-            ...values, // Spread the form values (name, topic, category, etc.)
-            creatorid: creatorId, // Add the creator ID
+            ...formValues,
+            creatorid: creatorId,
+            ...(imageUrl && { imageUrl: imageUrl }),
         };
 
+        // 3. Create the Room
         try {
-            // Call the API function (ensure createStudyRoom is implemented in apiStudyRooms.js)
+            console.log("[handleModalCreate] Attempting to call createStudyRoom with data:", roomData);
             const response = await createStudyRoom(roomData);
-            console.log("Room created successfully:", response.data);
+            console.log("[handleModalCreate] Room created successfully:", response.data);
             showNotification('success', 'Room Created', `Room "${response.data.name}" created successfully!`);
             setIsModalOpen(false); // Close modal on success
-            // TODO: Optionally refresh the room list or navigate to the new room
+
+            // --- Call the refresh function passed from parent ---
+            if (onRoomCreated && typeof onRoomCreated === 'function') {
+                onRoomCreated();
+            }
+            // --- End refresh call ---
+
         } catch (error) {
-            console.error('Failed to create room:', error);
+            console.error('[handleModalCreate] Failed to create room:', error);
             const errorMessage = error.response?.data?.message || error.message || "Failed to create room.";
             showNotification('error', 'Creation Failed', errorMessage);
-            // Keep modal open on error for user to correct or retry
         } finally {
-            setIsCreating(false); // Reset loading state
+            console.log('[handleModalCreate] Resetting isCreating state.');
+            setIsCreating(false);
         }
     };
     // --- End Handler Functions ---
@@ -111,8 +145,6 @@ const RoomSearchFilter = () => {
                     Create New
                 </button>
             </div>
-            {/* End Action Buttons */}
-
 
             {/* Search Section */}
             <div>
@@ -126,8 +158,6 @@ const RoomSearchFilter = () => {
                     <FiSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 </div>
             </div>
-            {/* End Search Section */}
-
 
             {/* Categories Section */}
             <div>
@@ -144,7 +174,6 @@ const RoomSearchFilter = () => {
                     ))}
                 </div>
             </div>
-            {/* End Categories Section */}
 
             {/* Render the Create Room Modal */}
             <CreateRoomModal
