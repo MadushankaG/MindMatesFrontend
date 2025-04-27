@@ -1,9 +1,7 @@
 // src/components/Analytics/StatCard.jsx
 import React from 'react';
-// Example: Using react-icons, import icons as needed
 import { FiClock, FiTrendingUp, FiZap } from 'react-icons/fi';
 
-// Simple icon map (expand as needed)
 const iconMap = {
   clock: FiClock,
   trend: FiTrendingUp,
