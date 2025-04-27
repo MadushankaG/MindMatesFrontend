@@ -1,4 +1,3 @@
-// src/components/Analytics/StatCard.jsx
 import React from 'react';
 import { FiClock, FiTrendingUp, FiZap } from 'react-icons/fi';
 
