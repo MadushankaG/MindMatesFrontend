@@ -3,12 +3,8 @@ import AchievementCard from '../components/Achievements/AchievementCard';
 import LoadingSpinner from '../components/smallComps/LoadingSpinner'; // Optional
 import { getUserAchievements } from '../api/apiAchievements'; // Import API function
 
-// --- Define Achievement Details (Client-Side) ---
-// It's often easier to manage display details like descriptions, icons,
-// and criteria checks on the client-side based on the AchievementType enum name
-// received from the backend.
+
 const achievementDetailsMap = {
-  // Key should match the AchievementType enum name from backend
   KNOWLEDGE_EXPLORER: {
     title: 'Knowledge Explorer',
     description: 'Join 3 different subject rooms and spend 5 hours studying.',
