@@ -6,11 +6,9 @@ import LoadingSpinner from '../components/smallComps/LoadingSpinner';
 
 const StudyRooms = () => {
     const [displayedRooms, setDisplayedRooms] = useState([]);
-    // Separate state for loading triggered by search/filter
     const [isSearching, setIsSearching] = useState(true); // Start loading initially
     const [searchError, setSearchError] = useState(null);
 
-    // Handler to receive updates from RoomSearchFilter
     const handleSearchUpdate = useCallback((status, data) => {
         console.log(`[StudyRooms] Search update received: Status=${status}`);
         switch (status) {
