@@ -1,30 +1,23 @@
-// src/pages/Register/Register.jsx
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-// 1. Import images using relative paths from within src
-import loginBackground from '../../assets/images/Background.png'; // Relative path for background
-import logoSrc from '../../assets/images/logo.png';           // Relative path for logo
-import mascotImage from '../../assets/images/login.svg'; // Assuming the mascot is this SVG
+import loginBackground from '../../assets/images/Background.png'; 
+import logoSrc from '../../assets/images/logo.png';           
+import mascotImage from '../../assets/images/login.svg'; 
 
-// 2. Import the updated userRegister function from your API file
 import { userRegister } from '../../api/apiUser';
 
-// --- Placeholder for a real notification function ---
-// TODO: Replace this with your actual notification implementation (e.g., Ant Design)
+
 const showNotification = (type, title, description) => {
     console.log(`Notification (${type}): ${title} - ${description}`);
-    // Example using alert (replace this)
     alert(`${title}: ${description}`);
 };
-// --- End Placeholder ---
 
 const Register = () => {
     const navigate = useNavigate();
-    const [buttonState, setButtonState] = useState(false); // Loading state for the button
+    const [buttonState, setButtonState] = useState(false); 
 
-    // State for form fields based on the form structure and API requirements
     const [name, setName] = useState(''); // Optional field
     const [username, setUsername] = useState(''); // Required field
     const [email, setEmail] = useState(''); // Required field
@@ -35,7 +28,6 @@ const Register = () => {
     const handleRegister = async (event) => {
         event.preventDefault(); // Prevent default form submission
 
-        // Basic client-side validation: Check if passwords match
         if (password !== confirmPassword) {
             showNotification('error', 'Registration Failed', 'Passwords do not match.');
             return; // Stop submission if passwords don't match
@@ -75,7 +67,6 @@ const Register = () => {
 
             let errorMessage = 'An error occurred during registration.'; // Default error message
 
-            // Check if the error response exists and has data
             if (error.response) {
                 // Use specific message from API if available (e.g., validation errors)
                 // The API doc mentions a string body for 409, use that if present
