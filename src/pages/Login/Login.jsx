@@ -3,20 +3,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-// 1. Import the actual userLogin function from your API file
-// This function currently targets POST /auth/login based on the existing code.
 import { userLogin } from '../../api/apiUser';
 
-// 2. Import assets using relative paths
 import loginBackground from '../../assets/images/Background.png'; // Background
 import logoSrc from '../../assets/images/logo.png';           // Logo
 import mascotImage from '../../assets/images/login.svg'; // Mascot
 
-// --- Placeholder for a real notification function ---
-// TODO: Replace this with your actual notification implementation (e.g., Ant Design)
 const showNotification = (type, title, description) => {
     console.log(`Notification (${type}): ${title} - ${description}`);
-    // Example using alert (replace this)
     alert(`${title}: ${description}`);
 };
 // --- End Placeholder ---
@@ -33,8 +27,6 @@ const Login = () => {
         setButtonState(true); // Set loading state
 
         try {
-            // Call the imported userLogin function from apiUser.js
-            // It expects email/username and password, and handles tokens internally
             const response = await userLogin(emailOrUsername, password);
 
             // Check if login seems successful based on expected response structure
@@ -55,7 +47,6 @@ const Login = () => {
 
             let errorMessage = 'An error occurred during login.'; // Default message
 
-            // Check for specific status codes based on API documentation
             if (error.response) {
                 errorMessage = error.response.data?.message || error.response.data || error.message; // Use message from response if available
                 if (error.response.status === 401) {
@@ -74,7 +65,6 @@ const Login = () => {
         }
     };
 
-    // Inline style for the background image
     const backgroundStyle = {
         backgroundImage: `url(${loginBackground})`,
         backgroundSize: 'cover',
