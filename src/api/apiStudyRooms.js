@@ -1,5 +1,6 @@
 // src/api/apiStudyRooms.js
 import api from "./index.js"
+import {getCurrentUserId} from "./apiTracking.js";
 
 /**
  * Fetches the list of public study rooms from the backend.
@@ -85,23 +86,84 @@ export const uploadRoomImageApi = async (formData) => {
 };
 
 
-/**
- * Joins a study room.
- * Corresponds to POST /api/study-rooms/join-room
- * TODO: Implement this function when Join Room functionality is needed.
- * TODO: Securely get currentUserId from auth context instead of passing it.
- * @param {string} roomId - The ID of the room to join.
- * @param {string|null} password - The password if the room is private.
- * @param {string} currentUserId - The ID of the user joining (INSECURE - get from auth).
- * @returns {Promise<object>} - The API response object.
- */
-export const joinStudyRoom = async (roomId, password, currentUserId) => {
-    const endpoint = '/api/study-rooms/join-room';
-    // Example implementation (needs actual data and error handling)
-    // const response = await api.post(endpoint, null, { params: { roomId, password, currentUserId } });
-    // return response;
-    console.warn("joinStudyRoom function not fully implemented yet.");
-    return Promise.reject("Not implemented"); // Placeholder
+export const searchPublicRooms = async (searchTerm, categories) => {
+    const endpoint = '/api/study-rooms/search';
+    const params = {};
+    if (searchTerm && searchTerm.trim() !== '') {
+        params.searchTerm = searchTerm;
+    }
+    // Only add categories if the array is not empty
+    if (categories && categories.length > 0) {
+        params.categories = categories;
+    }
+
+    try {
+        console.log("Calling searchPublicRooms with params object:", params);
+
+        const response = await api.get(endpoint, {
+            params,
+            // --- Add paramsSerializer ---
+            paramsSerializer: params => {
+                // Use URLSearchParams to format the query string
+                // This handles arrays by repeating the key (e.g., categories=A&categories=B)
+                const searchParams = new URLSearchParams();
+                for (const key in params) {
+                    if (Object.prototype.hasOwnProperty.call(params, key)) {
+                        const value = params[key];
+                        if (Array.isArray(value)) {
+                            // If it's an array, append each value separately
+                            value.forEach(item => searchParams.append(key, item));
+                        } else if (value !== null && value !== undefined) {
+                            // Otherwise, append the single value
+                            searchParams.append(key, value);
+                        }
+                    }
+                }
+                const queryString = searchParams.toString();
+                console.log("Serialized Query String:", queryString); // Log the final string
+                return queryString;
+            }
+            // --- End paramsSerializer ---
+        });
+        return response;
+    } catch (error) {
+        console.error("Error searching study rooms:", error.response || error.message);
+        throw error;
+    }
 };
 
-// Add other study room related API functions here (e.g., getRoomDetails, leaveRoom)
+
+export const joinStudyRoom = async (roomId, password) => { // Removed unused currentUserId param from signature
+    const currentUserId = getCurrentUserId(); // Get user ID from token
+
+    if (!currentUserId) {
+        // Throw an error that the component's catch block can handle
+        throw new Error("Cannot join room: User not logged in or token invalid.");
+    }
+    if (!roomId) {
+        // Throw an error that the component's catch block can handle
+        throw new Error("Cannot join room: Room ID is required.");
+    }
+
+    const endpoint = '/api/study-rooms/join-room';
+    const params = {
+        roomId: roomId,
+        currentUserId: currentUserId // Send the actual user ID
+    };
+    // Only include the password parameter if it's provided and not empty/whitespace
+    if (password && String(password).trim() !== '') {
+        params.password = password;
+    }
+
+    try {
+        console.log("Calling joinStudyRoom API with params:", params);
+        // Send null as body for POST, params go in the config object
+        const response = await api.post(endpoint, null, { params });
+        console.log("joinStudyRoom API response:", response);
+        return response; // Expect room data on success
+    } catch (error) {
+        // Log the detailed error and re-throw it for the calling component
+        console.error("Error joining study room API:", error.response || error.message);
+        throw error;
+    }
+};

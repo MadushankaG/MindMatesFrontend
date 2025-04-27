@@ -16,7 +16,8 @@ import Achievements from '../pages/Achievements';
 
 // --- Protected Route Component ---
 import ProtectedRoute from './ProtectedRoute';
-import StudyRoomDetail from "../pages/StudyRoomDetail.jsx"; // Import the protection component
+import StudyRoomDetail from "../pages/StudyRoomDetail.jsx";
+import Analytics from "../pages/Analytics.jsx"; // Import the protection component
 
 export const routesArray = [
     // --- Authentication Routes (Publicly Accessible) ---
@@ -57,6 +58,7 @@ export const routesArray = [
                         path: "/achievements",
                         element: <Achievements />,
                     },
+                    { path: "/analytics", element: <Analytics /> },
                     // Add routes for Analytics, Settings etc. here inside this children array
                     // { path: "/analytics", element: <Analytics /> },
                     // { path: "/settings", element: <Settings /> },
