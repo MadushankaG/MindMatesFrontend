@@ -68,8 +68,6 @@ const Register = () => {
             let errorMessage = 'An error occurred during registration.'; // Default error message
 
             if (error.response) {
-                // Use specific message from API if available (e.g., validation errors)
-                // The API doc mentions a string body for 409, use that if present
                 errorMessage = error.response.data || error.message;
 
                 // Handle specific 409 Conflict error as per API documentation
@@ -86,7 +84,6 @@ const Register = () => {
 
             setButtonState(false); // Reset button state only on error
         }
-        // No 'finally' block needed here, as successful navigation handles the state change implicitly.
     };
 
     // Inline style for the background image
