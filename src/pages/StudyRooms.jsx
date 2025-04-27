@@ -2,12 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react'; // Added useCal
 
 import StudyRoomCard from '../components/StudyRooms/StudyRoomCard';
 import RoomSearchFilter from '../components/StudyRooms/RoomSearchFilter';
-// Removed getPublicStudyRooms import as search handles initial load too
-// import { getPublicStudyRooms } from '../api/apiStudyRooms';
 import LoadingSpinner from '../components/smallComps/LoadingSpinner';
 
 const StudyRooms = () => {
-    // State now holds the *currently displayed* rooms (from search/filter)
     const [displayedRooms, setDisplayedRooms] = useState([]);
     // Separate state for loading triggered by search/filter
     const [isSearching, setIsSearching] = useState(true); // Start loading initially
@@ -35,24 +32,13 @@ const StudyRooms = () => {
                 setIsSearching(false);
                 break;
         }
-    }, []); // useCallback with empty dependency array as it doesn't depend on component state
+    }, []); 
 
-    // --- Removed initial fetch useEffect ---
-    // The initial load will be triggered by the RoomSearchFilter's useEffect
-    // calling onSearchUpdate('loading') and then onSearchUpdate('success', ...)
-    // with empty search term and categories.
 
-    // Optional: Function to trigger a full refresh (e.g., after creating a room)
-    // This might involve resetting filters in RoomSearchFilter or just re-triggering search
+
+    
     const handleRoomCreated = () => {
         console.log("[StudyRooms] Room created, triggering search update (implementation needed)");
-        // For now, we can just log. A more robust solution might involve
-        // telling RoomSearchFilter to re-run its search with current filters.
-        // Or, if RoomSearchFilter maintains its own state, this might not be needed
-        // if the user expects to see the room appear without clearing filters.
-        // Simplest immediate action:
-        // handleSearchUpdate('loading'); // Show loading
-        // searchPublicRooms('', []).then(res => handleSearchUpdate('success', res.data)).catch(err => handleSearchUpdate('error', err));
     };
 
 
